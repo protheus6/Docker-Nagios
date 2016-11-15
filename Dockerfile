@@ -105,38 +105,12 @@ RUN	cat ${NAGIOS_GRAPH}/etc/nagiosgraph-nagios.cfg >> ${NAGIOS_HOME}/etc/nagios.
 
 
 ## Configure nagiosgraph in apache
-RUN echo  $'\n\
-# enable nagiosgraph CGI scripts \n\
-ScriptAlias '${NG_CGI_URL}$' "'${NAGIOS_GRAPH}$'/cgi" \n\
-<Directory "'${NAGIOS_GRAPH}$'/cgi"> \n\
-   Options ExecCGI \n\
-   AllowOverride None \n\
-   Order allow,deny \n\
-   Allow from all \n\
-   AuthName "Nagios Access" \n\
-   AuthType Basic \n\
-   AuthUserFile '${NAGIOS_HOME}$'/etc/htpasswd.users \n\
-   Require valid-user \n\
-</Directory> \n\
-# enable nagiosgraph CSS and JavaScript \n\
-Alias /nagiosgraph "'${NAGIOS_HOME}$'/share/nagiosgraph" \n\
-<Directory "'${NAGIOS_HOME}$'/share/nagiosgraph"> \n\
-   Options None \n\
-   AllowOverride None \n\
-   Order allow,deny \n\
-   Allow from all \n\
-</Directory> \n\
- '> /etc/httpd/conf.d/nagiosgraph.conf
+ADD files/www/nagiosgraph.conf /etc/httpd/conf.d/nagiosgraph.tpl
+RUN envsubst < "/etc/httpd/conf.d/nagiosgraph.tpl" > "/etc/httpd/conf.d/nagiosgraph.conf" && rm -f /etc/httpd/conf.d/nagiosgraph.tpl
 
 
 
 
-
-
-
-
-	
-	
 # Install other Nagios Plugins
 RUN cd /tmp/install && \
 	git clone http://github.com/willixix/naglio-plugins.git WL-Nagios-Plugins && \
@@ -148,31 +122,9 @@ RUN cd /tmp/install && \
 	cp ./JE-Nagios-Plugins/check_mem/check_mem.pl ${NAGIOS_HOME}/libexec/
 
 
-	
-# Add Mibs Files
-#RUN	mkdir -p /usr/share/snmp/mibs								&&	\
-#	mkdir -p ${NAGIOS_HOME}/etc/conf.d							&&	\
-#	mkdir -p ${NAGIOS_HOME}/etc/monitor							&&	\
-#	mkdir -p ${NAGIOS_HOME}/.ssh								&&	\
-#	chown ${NAGIOS_USER}:${NAGIOS_GROUP} ${NAGIOS_HOME}/.ssh				&&	\
-#	chmod 700 ${NAGIOS_HOME}/.ssh								&&	\
-#	chmod 0755 /usr/share/snmp/mibs								&&	\
-#	touch /usr/share/snmp/mibs/.foo								&&	\
-#	ln -s /usr/share/snmp/mibs ${NAGIOS_HOME}/libexec/mibs					&&	\
-#	ln -s ${NAGIOS_HOME}/bin/nagios /usr/local/bin/nagios					&&	\
-#ADD http://archive.ubuntu.com/ubuntu/pool/multiverse/s/snmp-mibs-downloader/snmp-mibs-downloader_1.1.tar.gz /tmp/install/
-	
-	
-#RUN	cd /tmp/install  &&\
-#	tar -zxf ./snmp-mibs-downloader_1.1.tar.gz &&\
-#	cd snmp-mibs-downloader-1.1  &&\
-#	mkdir /etc/snmp-mibs-downloader &&\
-#	mkdir /usr/share/doc/mibrfcs  && \
-#	mkdir /usr/share/doc/mibiana && \
-#	mkdir /usr/share/mibs &&\
-#	make install &&\
-	
 
+# Create redirect to nagios WebUI
+ADD files/www/index.html /var/www/html/index.html
 
  
 # Set Passwd
