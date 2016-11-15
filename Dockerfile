@@ -132,6 +132,15 @@ RUN cd /tmp/install/nagios-nuvola && \
 	/bin/cp -rf ./html/* ${NAGIOS_HOME}/share/
 	
 
+# Add Configuration FrontEnd
+# git clone -b master git://lilac--reloaded.git.sourceforge.net/gitroot/lilac--reloaded/lilac--reloaded lilac-reload
+
+
+RUN mkdir /tmp/install/nagiosweb
+ADD files/tarball/nagiosweb/nagiosweb-hostlookup.tar.gz /tmp/install/nagiosweb/
+ADD files/tarball/nagiosweb/nagiosweb2-1.3a.tar.gz /tmp/install/nagiosweb/
+#	tar -zxf nagiosweb-hostlookup.tar.gz && \
+#	tar -zxf /nagiosweb2-1.3a.tar.gz
 
 
 
