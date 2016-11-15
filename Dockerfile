@@ -123,6 +123,30 @@ RUN cd /tmp/install && \
 
 
 
+# Add nuvola FrontEnd
+RUN mkdir /tmp/install/nagios-nuvola
+ADD files/tarball/nagios-nuvola-1.0.3.tar.gz /tmp/install/nagios-nuvola/nagios-nuvola-1.0.3.tar.gz
+RUN cd /tmp/install/nagios-nuvola && \
+	gzip -d nagios-nuvola-1.0.3.tar.gz && \
+	tar -zxf nagios-nuvola-1.0.3.tar && \
+	/bin/cp -rf ./html/* ${NAGIOS_HOME}/share/
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # Create redirect to nagios WebUI
 ADD files/www/index.html /var/www/html/index.html
 
