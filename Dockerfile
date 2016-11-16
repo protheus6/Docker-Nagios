@@ -181,6 +181,12 @@ RUN systemctl enable nagios
 RUN chmod a+x /etc/rc.d/startup/*
 
 
+#Remove install files
+RUN /bin/rm -rf /tmp/install
+
+
 EXPOSE 80
+
+VOLUME "/opt/nagios/etc" "/opt/nagios/var" "/opt/nagios/libexec" "/var/log/httpd"  
 
 ENTRYPOINT ["/usr/sbin/init"]
