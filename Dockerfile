@@ -53,6 +53,10 @@ RUN	cd /tmp/install						&&	\
 	make install-webconf			&& \
 	make clean
 
+# Configure Apache
+RUN sed -i "s,User apache,User ${NAGIOS_USER}," /etc/httpd/conf/httpd.conf && \
+	sed -i "s,Group apache,Group ${NAGIOS_GROUP}," /etc/httpd/conf/httpd.conf
+
 # Install Nagios Plugins
 RUN	cd /tmp/install						&&	\
 	git clone https://github.com/nagios-plugins/nagios-plugins.git		&&	\
@@ -132,25 +136,23 @@ RUN cd /tmp/install/nagios-nuvola && \
 	/bin/cp -rf ./html/* ${NAGIOS_HOME}/share/
 	
 
+
 # Add Configuration FrontEnd
-# git clone -b master git://lilac--reloaded.git.sourceforge.net/gitroot/lilac--reloaded/lilac--reloaded lilac-reload
+RUN cd /tmp/install && \
+	git clone -b master git://lilac--reloaded.git.sourceforge.net/gitroot/lilac--reloaded/lilac--reloaded lilac && \
+	cd lilac && \
+	mkdir  ${NAGIOS_HOME}/share/lilac && \
+	cp -r ./* ${NAGIOS_HOME}/share/lilac/ && \
+	touch ${NAGIOS_HOME}/share/lilac/includes/lilac-conf.php && \
+	chown -R ${NAGIOS_USER}:${NAGIOS_GROUP} ${NAGIOS_HOME}/share/* && \
+	chmod a+w ${NAGIOS_HOME}/share/lilac/includes/lilac-conf.php
 
-
-RUN mkdir /tmp/install/nagiosweb
-ADD files/tarball/nagiosweb/nagiosweb-hostlookup.tar.gz /tmp/install/nagiosweb/
-ADD files/tarball/nagiosweb/nagiosweb2-1.3a.tar.gz /tmp/install/nagiosweb/
-#	tar -zxf nagiosweb-hostlookup.tar.gz && \
-#	tar -zxf /nagiosweb2-1.3a.tar.gz
-
-
-
-
-
-
-
-
-
-
+## Configure MariaDB for lilac 
+RUN cd ${NAGIOS_HOME}/share/lilac/ && \
+	echo "create database lilac;" | mysql -u root && \
+	echo "create user 'lilac'@'localhost' identified by 'lilac';" | mysql -u root && \
+	echo "grant all on lilac.* to 'lilac'@'localhost';" | mysql -u root && \
+	echo "flush privileges;" | mysql -u root && \
 
 
 
@@ -163,9 +165,9 @@ ADD files/www/index.html /var/www/html/index.html
 # Set Passwd
 RUN htpasswd -bc ${NAGIOS_HOME}/etc/htpasswd.users ${NAGIOSADMIN_USER} ${NAGIOSADMIN_PASS}	
 	
-
-RUN  systemctl enable httpd
-RUN  systemctl enable nagios
+RUN systemctl enable mariadb
+RUN systemctl enable httpd
+RUN systemctl enable nagios
 
 
 
