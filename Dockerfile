@@ -152,7 +152,7 @@ RUN cd ${NAGIOS_HOME}/share/lilac/ && \
 	echo "create database lilac;" | mysql -u root && \
 	echo "create user 'lilac'@'localhost' identified by 'lilac';" | mysql -u root && \
 	echo "grant all on lilac.* to 'lilac'@'localhost';" | mysql -u root && \
-	echo "flush privileges;" | mysql -u root && \
+	echo "flush privileges;" | mysql -u root 
 
 
 
