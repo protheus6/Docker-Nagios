@@ -127,6 +127,15 @@ RUN cd /tmp/install && \
 
 
 
+
+#Configure startup
+RUN mkdir /var/log/startup
+RUN /bin/rm -f /etc/rc.d/rc.local
+ADD files/rc.local /etc/rc.d/rc.local
+RUN mkdir /etc/rc.d/startup
+RUN chmod a+x /etc/rc.d/rc.local
+
+
 # Add nuvola FrontEnd
 RUN mkdir /tmp/install/nagios-nuvola
 ADD files/tarball/nagios-nuvola-1.0.3.tar.gz /tmp/install/nagios-nuvola/nagios-nuvola-1.0.3.tar.gz
@@ -148,13 +157,11 @@ RUN cd /tmp/install && \
 	chmod a+w ${NAGIOS_HOME}/share/lilac/includes/lilac-conf.php
 
 ## Configure MariaDB for lilac 
-RUN cd ${NAGIOS_HOME}/share/lilac/ && \
-	echo "create database lilac;" | mysql -u root && \
-	echo "create user 'lilac'@'localhost' identified by 'lilac';" | mysql -u root && \
-	echo "grant all on lilac.* to 'lilac'@'localhost';" | mysql -u root && \
-	echo "flush privileges;" | mysql -u root 
+ADD files/initnagios.sh /etc/rc.d/startup/initnagios.sh
 
-
+# Configure sudo for lilac
+RUN sed -i "s,Defaults    requiretty,#Defaults    requiretty," /etc/sudoers
+RUN echo "${NAGIOS_USER} ALL=(ALL) NOPASSWD: /usr/bin/nmap *" > /etc/sudoers.d/nagios
 
 
 
@@ -170,8 +177,10 @@ RUN systemctl enable httpd
 RUN systemctl enable nagios
 
 
+#Configure startup
+RUN chmod a+x /etc/rc.d/startup/*
+
 
 EXPOSE 80
 
-CMD ["/usr/sbin/init"]
-
+ENTRYPOINT ["/usr/sbin/init"]
