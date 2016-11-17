@@ -162,7 +162,7 @@ ADD files/initnagios.sh /etc/rc.d/startup/initnagios.sh
 # Configure sudo for lilac
 RUN sed -i "s,Defaults    requiretty,#Defaults    requiretty," /etc/sudoers
 RUN echo "${NAGIOS_USER} ALL=(ALL) NOPASSWD: /usr/bin/nmap *" > /etc/sudoers.d/nagios
-
+RUN echo "${NAGIOS_USER} ALL=(ALL) NOPASSWD: /usr/bin/systemctl *" >>  /etc/sudoers.d/nagios
 
 
 # Create redirect to nagios WebUI
