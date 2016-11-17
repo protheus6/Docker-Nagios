@@ -171,18 +171,27 @@ ADD files/www/index.html /var/www/html/index.html
  
 # Set Passwd
 RUN htpasswd -bc ${NAGIOS_HOME}/etc/htpasswd.users ${NAGIOSADMIN_USER} ${NAGIOSADMIN_PASS}	
-	
+
+# Config Services	
 RUN systemctl enable mariadb
 RUN systemctl enable httpd
 RUN systemctl enable nagios
 
+# Backup config
+RUN mkdir -p /tmp/nagios_conf
+RUN cp -r ${NAGIOS_HOME}/etc /tmp/nagios_conf
+RUN cp -r ${NAGIOS_HOME}/var /tmp/nagios_conf
+
+
 
 #Configure startup
+ADD files/initconf.sh /etc/rc.d/startup/initconf.sh
 RUN chmod a+x /etc/rc.d/startup/*
 
 
 #Remove install files
 RUN /bin/rm -rf /tmp/install
+
 
 
 EXPOSE 80
